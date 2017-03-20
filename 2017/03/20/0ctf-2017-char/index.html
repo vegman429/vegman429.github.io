@@ -8,13 +8,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="ROP力足らなさ過ぎて本番中に解けなかった問題…関数0x08048678内のstrcpyでBuffer Overflow攻撃が可能。さらに、NX bitが立っていたのでROPなのは明らか。ここまでなら問題ないが、printableな入力（正確には0x20から0x7eの範囲）しか受け付けないという制約を設けているのが問題となる。とりあえず、rp++を使ってROPガジェットを吐き出して、1$ rp++">
 <meta property="og:type" content="article">
-<meta property="og:title" content="0ctf char writeup">
-<meta property="og:url" content="http://yoursite.com/2017/03/20/0ctf-char/index.html">
+<meta property="og:title" content="0ctf 2017 char writeup">
+<meta property="og:url" content="http://yoursite.com/2017/03/20/0ctf-2017-char/index.html">
 <meta property="og:site_name" content="vegman429's notes">
 <meta property="og:description" content="ROP力足らなさ過ぎて本番中に解けなかった問題…関数0x08048678内のstrcpyでBuffer Overflow攻撃が可能。さらに、NX bitが立っていたのでROPなのは明らか。ここまでなら問題ないが、printableな入力（正確には0x20から0x7eの範囲）しか受け付けないという制約を設けているのが問題となる。とりあえず、rp++を使ってROPガジェットを吐き出して、1$ rp++">
-<meta property="og:updated_time" content="2017-03-20T17:17:20.000Z">
+<meta property="og:updated_time" content="2017-03-20T18:15:43.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="0ctf char writeup">
+<meta name="twitter:title" content="0ctf 2017 char writeup">
 <meta name="twitter:description" content="ROP力足らなさ過ぎて本番中に解けなかった問題…関数0x08048678内のstrcpyでBuffer Overflow攻撃が可能。さらに、NX bitが立っていたのでROPなのは明らか。ここまでなら問題ないが、printableな入力（正確には0x20から0x7eの範囲）しか受け付けないという制約を設けているのが問題となる。とりあえず、rp++を使ってROPガジェットを吐き出して、1$ rp++">
     
     
@@ -35,7 +35,7 @@
         
     
     <!-- title -->
-    <title>0ctf char writeup</title>
+    <title>0ctf 2017 char writeup</title>
     <!-- styles -->
     <link rel="stylesheet" href="/css/style.css">
     <!-- rss -->
@@ -77,16 +77,16 @@
     <br/>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2017/03/20/0ctf-char/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2017/03/20/0ctf-char/&text=0ctf char writeup"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2017/03/20/0ctf-char/&is_video=false&description=0ctf char writeup"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=0ctf char writeup&body=Check out this article: http://yoursite.com/2017/03/20/0ctf-char/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2017/03/20/0ctf-char/&name=0ctf char writeup&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2017/03/20/0ctf-2017-char/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&text=0ctf 2017 char writeup"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&title=0ctf 2017 char writeup"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&is_video=false&description=0ctf 2017 char writeup"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=0ctf 2017 char writeup&body=Check out this article: http://yoursite.com/2017/03/20/0ctf-2017-char/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&title=0ctf 2017 char writeup"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&title=0ctf 2017 char writeup"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&title=0ctf 2017 char writeup"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&title=0ctf 2017 char writeup"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&name=0ctf 2017 char writeup&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -103,7 +103,7 @@
   <header>
     
     <h1 class="posttitle" itemprop="name headline">
-        0ctf char writeup
+        0ctf 2017 char writeup
     </h1>
 
 
@@ -119,6 +119,11 @@
 
 
       
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/0ctf/">0ctf</a>, <a class="tag-link" href="/tags/ascii-rop/">ascii rop</a>, <a class="tag-link" href="/tags/pwn/">pwn</a>, <a class="tag-link" href="/tags/rop/">rop</a>
+    </div>
+
 
     </div>
   </header>
@@ -157,16 +162,16 @@
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2017/03/20/0ctf-char/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2017/03/20/0ctf-char/&text=0ctf char writeup"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2017/03/20/0ctf-char/&is_video=false&description=0ctf char writeup"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=0ctf char writeup&body=Check out this article: http://yoursite.com/2017/03/20/0ctf-char/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2017/03/20/0ctf-char/&title=0ctf char writeup"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2017/03/20/0ctf-char/&name=0ctf char writeup&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2017/03/20/0ctf-2017-char/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&text=0ctf 2017 char writeup"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&title=0ctf 2017 char writeup"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&is_video=false&description=0ctf 2017 char writeup"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=0ctf 2017 char writeup&body=Check out this article: http://yoursite.com/2017/03/20/0ctf-2017-char/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&title=0ctf 2017 char writeup"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&title=0ctf 2017 char writeup"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&title=0ctf 2017 char writeup"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&title=0ctf 2017 char writeup"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2017/03/20/0ctf-2017-char/&name=0ctf 2017 char writeup&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
